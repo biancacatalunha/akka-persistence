@@ -1,32 +1,51 @@
-# The official starter repository for the Rock the JVM Akka Persistence with Scala course
+# Akka Persistence
 
-Powered by [Rock the JVM!](rockthejvm.com)
+Problems with traditional databases:
+- How do you query a previous state?
+- How to trace how it arrived to the current state?
 
-This repository contains the starter code for the [Rock the JVM's Akka Persistence with Scala](https://www.udemy.com/akka-persistence) course on Udemy.
+Instead of storing the *current state*, it stores *events*  
+We can always recreate the current state by replaying events
 
-### How to install
-- either clone the repo or download as zip
-- open with IntelliJ as an SBT project
+## Event Sourcing
 
-No need to do anything else, as the IDE will take care to download and apply the appropriate library dependencies.
+It is a new mental model
 
-### The complete code
+Pros:
+- High performance: Events are only appended
+- Avoids relational stores and ORM entirely
+- Full trace of every state
+- Fits the Akka actor model perfectly
 
-The repository for the completed code is [here](https://github.com/rockthejvm/udemy-akka-persistence). You can follow the instructions there - although the download/import steps are identical to this one. Additionally, the completed repo is enhanced with commit tags that allow you to go back to an earlier state of the repository, prior to each lecture.
+Cons:
+- Query a state is potentially expensive <- Akka Persistence Query
+- Potential performance issues with long-lived entities (stream of events might be extremely large) <- Snapshotting
+- Data model subject to change <- Schema evolution
 
-### Contents in this repo
+## Persistent Actors
+Can do everything a normal actor can do:
+- Send and receive messages
+- Hold internal state
+- Run in parallel with many other actors
 
-* a filled-in `build.sbt` with the appropriate library dependencies
-* a complete Scala IntelliJ project with a `Playground` app that you can compile to see that the libraries were downloaded
-* a `docker-compose.yml` with already configured Docker containers for Postgres and Cassandra
-* a simple `docker-clean.sh` script to remove your Docker containers if you want to start them fresh
-* a `/sql` folder with a SQL script that will automatically be run in the Postgres container and create the correct tables for Akka (more on that in the PostgreSQL lecture)
-* a helper script `psql.sh` to easily connect to Postgres once started
-* a helper scripte `cqlsh.sh` to easily connect to Cassandra once started
+Extra capabilities:
+- Have a persistence ID
+- Send events to a long-term store
+- Recover state by replaying events from the store
 
-### For questions or suggestions
+When an actor handles a ~~message~~ command:
+- It can (asynchronously) persist an event to the store
+- After the event is persisted, it changes its internal state
 
-If you have changes to suggest to this repo, either
-- submit a GitHub issue
-- tell me in the course Q/A forum
-- submit a pull request!
+When an actor starts/restarts:
+- It replays all events with the persistent id in the same other
+
+## Course Details
+Akka Persistence with Scala - Rock tge JVM - Udemy
+
+### Contents
+- [x] 57min Welcome
+- [ ] 2h58min Akka Persistence Primer
+- [ ] 1h22min Akka Persistence Stores and Serialization
+- [ ] 1h48min Advanced Akka Persistence Patterns and Practices
+
